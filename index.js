@@ -10,11 +10,17 @@ const io = new Server(server, {
   },
 });
 
+const messages = [];
+
 io.on("connection", (socket) => {
   console.log("User connected: ", socket.id);
 
   socket.on("message", (msg) => {
     console.log("Message received: ", msg);
+    messages.push(msg);
+    if (messages.length > 20) {
+      messages.shift();
+    }
     io.emit("message", msg);
   });
 
@@ -24,6 +30,10 @@ io.on("connection", (socket) => {
   socket.on("image", (image) => {
     io.emit("image", image);
   });
+});
+
+socket.on("getLastMessages", () => {
+  socket.emit("lastMessages", messages);
 });
 
 const PORT = process.env.PORT || 3000;
